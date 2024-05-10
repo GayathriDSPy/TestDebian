@@ -39,7 +39,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.PORT }}
-          timeout: 300
+          timeout: 5m
           script: |
             # Add commands to transfer files to BeagleBone
             # Example:
