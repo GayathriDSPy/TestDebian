@@ -39,6 +39,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.PORT }}
-          timeout: 10m
+          timeout: 15m
           script: |
             scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
