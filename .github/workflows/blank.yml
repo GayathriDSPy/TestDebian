@@ -37,6 +37,7 @@ jobs:
           host: ${{ secrets.BEAGLEBONE_HOST }}
           username: ${{ secrets.BEAGLEBONE_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             # Add commands to transfer files to BeagleBone
             # Example:
