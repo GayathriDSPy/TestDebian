@@ -41,6 +41,4 @@ jobs:
           port: ${{ secrets.PORT }}
           timeout: 5m
           script: |
-            # Add commands to transfer files to BeagleBone
-            # Example:
-            scp -r ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
+            scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
