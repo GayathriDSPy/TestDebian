@@ -16,19 +16,21 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Debug Connection
+        id: debug_connection
         run: |
           echo "BEAGLEBONE_HOST: ${{ secrets.BEAGLEBONE_HOST }}"
           echo "PORT: ${{ secrets.PORT }}"
           # Add more debug commands as needed
-          ping -c 5 ${{ secrets.BEAGLEBONE_HOST }}
+          ping -c 5 -w 10 ${{ secrets.BEAGLEBONE_HOST }}
           ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "echo Connection successful" || true
 
       - name: Install SSH and sshpass
+        if: steps.debug_connection.outcome == 'success'
         run: |
           sudo apt-get update && sudo apt-get install -y openssh-client sshpass
 
       - name: Copy files via SSH
-        if: success()  # Proceed with copying files only if connection tests are successful
+        if: steps.debug_connection.outcome == 'success'
         run: |
           sshpass -p "${{ secrets.BEAGLEBONE_PASSWORD }}" \
           scp -o StrictHostKeyChecking=no -r ./TestDebian/* \
