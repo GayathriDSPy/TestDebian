@@ -1,37 +1,26 @@
-name: CI
+name: Clone to BeagleBone
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Debug Connection
-        id: debug_connection
-        run: |
-          echo "BEAGLEBONE_HOST: ${{ secrets.BEAGLEBONE_HOST }}"
-          echo "PORT: ${{ secrets.PORT }}"
-          # Add more debug commands as needed
-          ping -c 5 -w 10 ${{ secrets.BEAGLEBONE_HOST }}
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "echo Connection successful" || true
+    - name: Install SSH
+      run: sudo apt-get install ssh -y
 
-      - name: Install SSH and sshpass
-        if: steps.debug_connection.outcome == 'success'
-        run: |
-          sudo apt-get update && sudo apt-get install -y openssh-client sshpass
+    - name: Copy SSH Key
+      run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
-      - name: Copy files via SSH
-        if: steps.debug_connection.outcome == 'success'
-        run: |
-          sshpass -p "${{ secrets.BEAGLEBONE_PASSWORD }}" \
-          scp -o StrictHostKeyChecking=no -r ./TestDebian/* \
-          ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
+    - name: Add BeagleBone SSH fingerprint
+      run: ssh-keyscan -H 192.168.1.106 >> ~/.ssh/known_hosts
+
+    - name: Clone Repository to BeagleBone
+      run: scp -r ./* debian@192.168.1.106:/home/debian
