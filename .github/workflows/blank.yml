@@ -1,37 +1,35 @@
-name: CI
+name: Clone Repository to BeagleBone
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  build:
+  clone_to_beaglebone:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Debug Connection
-        id: debug_connection
-        run: |
-          echo "BEAGLEBONE_HOST: ${{ secrets.BEAGLEBONE_HOST }}"
-          echo "PORT: ${{ secrets.PORT }}"
-          # Add more debug commands as needed
-          ping -c 5 -w 10 ${{ secrets.BEAGLEBONE_HOST }}
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "echo Connection successful" || true
-
-      - name: Install SSH and sshpass
-        if: steps.debug_connection.outcome == 'success'
-        run: |
-          sudo apt-get update && sudo apt-get install -y openssh-client sshpass
-
-      - name: Copy files via SSH
-        if: steps.debug_connection.outcome == 'success'
-        run: |
-          sshpass -p "${{ secrets.BEAGLEBONE_PASSWORD }}" \
-          scp -o StrictHostKeyChecking=no -r ./TestDebian/* \
-          ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Install SSH
+      run: sudo apt-get install openssh-client
+      
+    - name: Copy SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+      
+    - name: Add GitHub to known hosts
+      run: ssh-keyscan github.com >> ~/.ssh/known_hosts
+      
+    - name: Clone repository to BeagleBone
+      run: |
+        ssh debian@<192.168.7.2> "git clone git@github.com:<GayathriDSPy>/TestDebian.git ${{ secrets.BEAGLEBONE_DESTINATION_PATH }}"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
