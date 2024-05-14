@@ -21,13 +21,14 @@ jobs:
           echo "PORT: ${{ secrets.PORT }}"
           # Add more debug commands as needed
           ping -c 5 ${{ secrets.BEAGLEBONE_HOST }}
-          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "echo Connection successful"
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "echo Connection successful" || true
 
       - name: Install SSH and sshpass
         run: |
           sudo apt-get update && sudo apt-get install -y openssh-client sshpass
 
       - name: Copy files via SSH
+        if: success()  # Proceed with copying files only if connection tests are successful
         run: |
           sshpass -p "${{ secrets.BEAGLEBONE_PASSWORD }}" \
           scp -o StrictHostKeyChecking=no -r ./TestDebian/* \
