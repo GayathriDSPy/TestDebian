@@ -21,8 +21,9 @@ jobs:
           echo "PORT: ${{ secrets.PORT }}"
           # Add more debug commands as needed
 
-      - name: Install SSH
-        run: sudo apt-get install openssh-client -y
+      - name: Install SSH and sshpass
+        run: |
+          sudo apt-get update && sudo apt-get install -y openssh-client sshpass
 
       - name: Copy files via SSH
         run: |
