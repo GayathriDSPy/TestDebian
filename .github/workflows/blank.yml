@@ -20,6 +20,8 @@ jobs:
           echo "BEAGLEBONE_HOST: ${{ secrets.BEAGLEBONE_HOST }}"
           echo "PORT: ${{ secrets.PORT }}"
           # Add more debug commands as needed
+          ping -c 5 ${{ secrets.BEAGLEBONE_HOST }}
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "echo Connection successful"
 
       - name: Install SSH and sshpass
         run: |
