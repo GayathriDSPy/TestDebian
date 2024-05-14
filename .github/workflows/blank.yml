@@ -30,6 +30,6 @@ jobs:
       
     - name: Clone repository to BeagleBone
       run: |
-        ssh debian@<192.168.7.2> "git clone git@github.com:<GayathriDSPy>/TestDebian.git ${{ secrets.BEAGLEBONE_DESTINATION_PATH }}"
+        ssh debian@192.168.7.2 "git clone git@github.com:GayathriDSPy/TestDebian.git ${{ secrets.BEAGLEBONE_DESTINATION_PATH }}"
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
