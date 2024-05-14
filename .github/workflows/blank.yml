@@ -26,4 +26,4 @@ jobs:
       run: ssh-keyscan -H 192.168.1.106 >> ~/.ssh/known_hosts
 
     - name: Clone Repository to BeagleBone
-      run: scp -r ./* debian@192.168.7.2:/home/debian
+      run: scp -r ./* debian@192.168.1.106:/home/debian
