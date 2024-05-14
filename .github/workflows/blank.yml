@@ -29,20 +29,25 @@ jobs:
       #     # Example:
       #     make build
       #     make test
-
-      - name: Deploy to BeagleBone
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.BEAGLEBONE_HOST }}
-          username: ${{ secrets.BEAGLEBONE_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: ${{ secrets.PORT }}
-          timeout: 30m  # Increased timeout to 30 minutes
-          retries: 3    # Retry 3 times in case of failure
-          retry_delay: 10  # Delay between retries in seconds
-          script: |
-            scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
+      
+      - name: Retry Deploy to BeagleBone on Failure
+        run: |
+          RETRIES=3
+          until [ $RETRIES -eq 0 ]; do
+            echo "Attempt $((4 - RETRIES)) to deploy to BeagleBone..."
+            if scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}; then
+              echo "Deployment successful."
+              break
+            else
+              echo "Deployment failed. Retrying in 10 seconds..."
+              sleep 10
+              RETRIES=$((RETRIES - 1))
+            fi
+          done
+          if [ $RETRIES -eq 0 ]; then
+            echo "Maximum retries reached. Deployment to BeagleBone failed."
+            exit 1
+          fi
 
       # Add error handling in case of failure
       - name: Check if deployment failed
