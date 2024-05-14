@@ -16,6 +16,9 @@ jobs:
     - name: Install SSH
       run: sudo apt-get install ssh -y
 
+    - name: Create SSH directory if not exists
+      run: mkdir -p ~/.ssh
+
     - name: Copy SSH Key
       run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
