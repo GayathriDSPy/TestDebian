@@ -22,9 +22,9 @@ jobs:
     - name: Prepare SSH
       run: |
         mkdir -p ~/.ssh
-        echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        echo "${{ secrets.SSH_PASSPHRASE }}" | ssh-keygen -p -P '' -N '' -f ~/.ssh/id_rsa
+        echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/root/.ssh/id_rsa
+        chmod 600 ~/root/.ssh/id_rsa
+        echo "${{ secrets.SSH_PASSPHRASE }}" | ssh-keygen -p -P '' -N '' -f ~/root/.ssh/id_rsa
         ssh-keyscan github.com >> ~/.ssh/known_hosts
       
     - name: Clone repository to BeagleBone
