@@ -22,7 +22,7 @@ jobs:
     - name: Prepare SSH
       run: |
         mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
         ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -30,5 +30,3 @@ jobs:
     - name: Clone repository to BeagleBone
       run: |
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -vvv ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "git clone git@github.com:GayathriDSPy/TestDebian.git ${{ secrets.BEAGLEBONE_DESTINATION_PATH }}"
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
