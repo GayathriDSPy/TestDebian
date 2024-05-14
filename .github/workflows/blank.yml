@@ -32,18 +32,13 @@ jobs:
 
       # Add step to deploy to BeagleBone board via SSH
       - name: Deploy to BeagleBone
-        # uses: appleboy/ssh-action@master
-        # with:
-        #   host: ${{ secrets.BEAGLEBONE_HOST }}
-        #   username: ${{ secrets.BEAGLEBONE_USERNAME }}
-        #   key: ${{ secrets.SSH_PRIVATE_KEY }}
-        #   passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        #   port: ${{ secrets.PORT }}
-        #   timeout: 15m
-        run: |
-          scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          BEAGLEBONE_USERNAME: ${{ secrets.BEAGLEBONE_USERNAME }}
-          BEAGLEBONE_HOST: ${{ secrets.BEAGLEBONE_HOST }}
-          BEAGLEBONE_DESTINATION_PATH: ${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.BEAGLEBONE_HOST }}
+          username: ${{ secrets.BEAGLEBONE_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.PORT }}
+          timeout: 15m
+          script: |
+            scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
