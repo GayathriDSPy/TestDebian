@@ -30,7 +30,6 @@ jobs:
       #     make build
       #     make test
 
-      # Add step to deploy to BeagleBone board via SSH
       - name: Deploy to BeagleBone
         uses: appleboy/ssh-action@master
         with:
@@ -39,6 +38,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.PORT }}
-          timeout: 15m
+          timeout: 30m  # Increased timeout to 30 minutes
+          retries: 3    # Retry 3 times in case of failure
+          retry_delay: 10  # Delay between retries in seconds
           script: |
             scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
+
+      # Add error handling in case of failure
+      - name: Check if deployment failed
+        if: failure()
+        run: echo "Deployment failed. Check the logs for details."
