@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Utilize a self-hosted runner
 
     steps:
       - name: Checkout code
@@ -21,24 +21,9 @@ jobs:
           echo "PORT: ${{ secrets.PORT }}"
           # Add more debug commands as needed
 
-      - name: Retry Deploy to BeagleBone on Failure
+      - name: Deploy to BeagleBone
         run: |
-          RETRIES=3
-          until [ $RETRIES -eq 0 ]; do
-            echo "Attempt $((4 - RETRIES)) to deploy to BeagleBone..."
-            if scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}; then
-              echo "Deployment successful."
-              break
-            else
-              echo "Deployment failed. Retrying in 10 seconds..."
-              sleep 10
-              RETRIES=$((RETRIES - 1))
-            fi
-          done
-          if [ $RETRIES -eq 0 ]; then
-            echo "Maximum retries reached. Deployment to BeagleBone failed."
-            exit 1
-          fi
+          scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
 
       # Add error handling in case of failure
       - name: Check if deployment failed
