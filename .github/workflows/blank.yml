@@ -1,32 +1,37 @@
-name: Clone Repository to BeagleBone
+name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  clone_to_beaglebone:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      
-    - name: Install SSH
-      run: sudo apt-get install -y openssh-client
-      
-    - name: Prepare SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo -e "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        echo "${{ secrets.SSH_PASSPHRASE }}" | ssh-keygen -p -P '' -N '' -f ~/.ssh/id_rsa
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
-      
-    - name: Clone repository to BeagleBone
-      run: |
-        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -vvv ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "git clone git@github.com:GayathriDSPy/TestDebian.git ${{ secrets.BEAGLEBONE_DESTINATION_PATH }}"
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Debug Connection
+        id: debug_connection
+        run: |
+          echo "BEAGLEBONE_HOST: ${{ secrets.BEAGLEBONE_HOST }}"
+          echo "PORT: ${{ secrets.PORT }}"
+          # Add more debug commands as needed
+          ping -c 5 -w 10 ${{ secrets.BEAGLEBONE_HOST }}
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }} "echo Connection successful" || true
+
+      - name: Install SSH and sshpass
+        if: steps.debug_connection.outcome == 'success'
+        run: |
+          sudo apt-get update && sudo apt-get install -y openssh-client sshpass
+
+      - name: Copy files via SSH
+        if: steps.debug_connection.outcome == 'success'
+        run: |
+          sshpass -p "${{ secrets.BEAGLEBONE_PASSWORD }}" \
+          scp -o StrictHostKeyChecking=no -r ./TestDebian/* \
+          ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
