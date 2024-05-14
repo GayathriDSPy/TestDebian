@@ -23,7 +23,7 @@ jobs:
       run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
     - name: Add BeagleBone SSH fingerprint
-      run: ssh-keyscan -H 192.168.1.106 >> ~/.ssh/known_hosts
+      run: ssh-keyscan -H 192.168.7.2 >> ~/.ssh/known_hosts
 
     - name: Clone Repository to BeagleBone
       run: scp -r ./* debian@192.168.1.106:/home/debian
