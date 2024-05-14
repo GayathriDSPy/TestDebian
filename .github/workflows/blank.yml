@@ -21,11 +21,11 @@ jobs:
           echo "PORT: ${{ secrets.PORT }}"
           # Add more debug commands as needed
 
-      - name: Deploy to BeagleBone
-        run: |
-          scp -r -v ./TestDebian/* ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
+      - name: Install SSH
+        run: sudo apt-get install openssh-client -y
 
-      # Add error handling in case of failure
-      - name: Check if deployment failed
-        if: failure()
-        run: echo "Deployment failed. Check the logs for details."
+      - name: Copy files via SSH
+        run: |
+          sshpass -p "${{ secrets.BEAGLEBONE_PASSWORD }}" \
+          scp -o StrictHostKeyChecking=no -r ./TestDebian/* \
+          ${{ secrets.BEAGLEBONE_USERNAME }}@${{ secrets.BEAGLEBONE_HOST }}:${{ secrets.BEAGLEBONE_DESTINATION_PATH }}
